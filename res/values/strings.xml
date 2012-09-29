@@ -1225,4 +1225,8 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <!-- This is the message warning the user that they must sync manually when roaming. [CHAR LIMIT=none]-->
     <string name="require_manual_sync_message">Background sync for this account is disabled while\
      roaming.</string>
+
+    <string name="protocol_is_not_supported">Email does not support current protocol.</string>
+
+    <string name="cannot_add_attachment_from_send_intent">Failed to add the attachment.</string>
 </resources>
