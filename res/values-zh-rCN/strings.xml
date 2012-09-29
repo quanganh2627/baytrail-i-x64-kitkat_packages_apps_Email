@@ -468,4 +468,6 @@
     <string name="search_slow_warning_message" msgid="8494483410797387903">"有些服务器可能会花费较长的时间。"</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"文件夹"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"漫游时停用了此帐户的后台同步功能。"</string>
+    <string name="protocol_is_not_supported">电子邮件不支持当前协议。</string>
+    <string name="cannot_add_attachment_from_send_intent">附件加载失败。</string>
 </resources>
