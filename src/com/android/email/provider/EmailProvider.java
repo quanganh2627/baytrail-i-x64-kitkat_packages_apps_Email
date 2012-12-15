@@ -83,6 +83,7 @@ public class EmailProvider extends ContentProvider {
     public static final String ATTACHMENT_UPDATED_EXTRA_FLAGS =
         "com.android.email.ATTACHMENT_UPDATED_FLAGS";
 
+    public static final Object sLock = new Object();
     /**
      * Notifies that changes happened. Certain UI components, e.g., widgets, can register for this
      * {@link android.content.Intent} and update accordingly. However, this can be very broad and
@@ -474,10 +475,12 @@ public class EmailProvider extends ContentProvider {
         checkDatabases();
 
         DBHelper.DatabaseHelper helper = new DBHelper.DatabaseHelper(context, DATABASE_NAME);
-        mDatabase = helper.getWritableDatabase();
-        DBHelper.BodyDatabaseHelper bodyHelper =
-                new DBHelper.BodyDatabaseHelper(context, BODY_DATABASE_NAME);
-        mBodyDatabase = bodyHelper.getWritableDatabase();
+        synchronized(sLock) {
+            mDatabase = helper.getWritableDatabase();
+            DBHelper.BodyDatabaseHelper bodyHelper =
+                    new DBHelper.BodyDatabaseHelper(context, BODY_DATABASE_NAME);
+            mBodyDatabase = bodyHelper.getWritableDatabase();
+        }
         if (mBodyDatabase != null) {
             String bodyFileName = mBodyDatabase.getPath();
             mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
@@ -1048,12 +1051,14 @@ public class EmailProvider extends ContentProvider {
         File bodyFile = getContext().getDatabasePath(BODY_DATABASE_NAME);
 
         // TODO Make sure attachments are deleted
-        if (databaseFile.exists() && !bodyFile.exists()) {
-            Log.w(TAG, "Deleting orphaned EmailProvider database...");
-            databaseFile.delete();
-        } else if (bodyFile.exists() && !databaseFile.exists()) {
-            Log.w(TAG, "Deleting orphaned EmailProviderBody database...");
-            bodyFile.delete();
+        synchronized(sLock) {
+            if (databaseFile.exists() && !bodyFile.exists()) {
+                Log.w(TAG, "Deleting orphaned EmailProvider database...");
+                databaseFile.delete();
+            } else if (bodyFile.exists() && !databaseFile.exists()) {
+                Log.w(TAG, "Deleting orphaned EmailProviderBody database...");
+                bodyFile.delete();
+            }
         }
     }
     @Override
