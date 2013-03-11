@@ -53,6 +53,8 @@
     <string name="mailbox_settings_action" msgid="8008375875310554776">"同步选项"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"标记为未读"</string>
     <string name="move_action" msgid="3059189775933985898">"移动"</string>
+    <string name="newer_action" msgid="8950909456802330593">"后一封邮件"</string>
+    <string name="older_action" msgid="4504015635360605471">"前一封邮件"</string>
     <string name="plus_cc_label" msgid="3365150001259912183">"+抄送/密送"</string>
     <string name="add_cc_bcc_menu" msgid="4757145078498200242">"添加抄送/密送地址"</string>
     <string name="add_file_attachment" msgid="2203398371671979481">"添加附件"</string>
@@ -388,11 +390,6 @@
     <string name="account_settings_sync_email_enable" msgid="3754115565685222477">"同步电子邮件"</string>
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"同步此帐户的电子邮件"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"振动"</string>
-    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"收到电子邮件时也振动"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"始终"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"仅在静音时"</string>
-    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"永不"</string>
-    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"振动"</string>
     <string name="account_settings_ringtone" msgid="8229878374785575207">"选择铃声"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"服务器设置"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"删除帐户"</string>
@@ -468,4 +465,6 @@
     <string name="search_slow_warning_message" msgid="8494483410797387903">"有些服务器可能会花费较长的时间。"</string>
     <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"文件夹"</string>
     <string name="require_manual_sync_message" msgid="7777357288642785955">"漫游时停用了此帐户的后台同步功能。"</string>
+    <string name="protocol_is_not_supported">电子邮件不支持当前协议。</string>
+    <string name="cannot_add_attachment_from_send_intent">附件加载失败。</string>
 </resources>
