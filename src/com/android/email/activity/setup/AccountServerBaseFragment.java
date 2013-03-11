@@ -401,17 +401,13 @@ public abstract class AccountServerBaseFragment extends Fragment
     public boolean haveSettingsChanged() {
         Account account = SetupData.getAccount();
 
-        try{
-            HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
-            boolean sendChanged = (mLoadedSendAuth != null && !mLoadedSendAuth.equals(sendAuth));
+        HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+        boolean sendChanged = (mLoadedSendAuth != null && !mLoadedSendAuth.equals(sendAuth));
 
-            HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
-            boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
 
-            return sendChanged || recvChanged;
-        } catch(RuntimeException re) {
-            return false;
-        }
+        return sendChanged || recvChanged;
     }
 
     /**
