@@ -308,6 +308,11 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             mDeletePolicyLabelView.setVisibility(View.GONE);
             mDeletePolicyView.setVisibility(View.GONE);
             mPortView.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+        } else if (HostAuth.SCHEME_EAS.equals(mBaseScheme)) {
+            /* Race condition: SetupData has been modified during activity launch: abandon this activity */
+            Log.w(Logging.LOG_TAG, "AccountSetupIncomingFragment configureEditor() eas protocol rejected");
+            getActivity().onBackPressed();
+            return;
         } else {
             throw new Error("Unknown account type: " + account);
         }
@@ -342,6 +347,11 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             if (prefix != null && prefix.length() > 0) {
                 mImapPathPrefixView.setText(prefix.substring(1));
             }
+        } else if (HostAuth.SCHEME_EAS.equals(recvAuth.mProtocol)) {
+            /* Race condition: SetupData has been modified during activity launch: abandon this activity */
+            Log.w(Logging.LOG_TAG, "AccountSetupIncomingFragment loadSettings() eas protocol rejected");
+            getActivity().onBackPressed();
+            return;
         } else if (!HostAuth.SCHEME_POP3.equals(recvAuth.mProtocol)) {
             // Account must either be IMAP or POP3
             throw new Error("Unknown account type: " + recvAuth.mProtocol);
