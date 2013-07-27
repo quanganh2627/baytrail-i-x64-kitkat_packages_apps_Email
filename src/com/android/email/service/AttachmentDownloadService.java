@@ -920,7 +920,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
         // Unregister now that we're done
         if (mConnectivityManager != null) {
-            mConnectivityManager.unregister();
+            try {
+                mConnectivityManager.unregister();
+            } catch(RuntimeException e) {
+                // Don't crash if mConnectivityManager turn to be null
+            }
         }
     }
 
