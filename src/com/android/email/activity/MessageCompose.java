@@ -370,10 +370,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void setAccount(Account account) {
-        if (account == null) {
+        if (account == null || account.mEmailAddress == null) {
             Utility.showToast(this, R.string.widget_no_accounts);
             Log.d(Logging.LOG_TAG, "The account has been deleted, force finish it");
             finish();
+            return;
         }
         mAccount = account;
         mFromView.setText(account.mEmailAddress);
