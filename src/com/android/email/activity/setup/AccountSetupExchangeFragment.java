@@ -298,17 +298,9 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             }
         }
 
-        if (!HostAuth.SCHEME_EAS.equals(hostAuth.mProtocol)) {
-            if (HostAuth.SCHEME_POP3.equals(hostAuth.mProtocol) || HostAuth.SCHEME_IMAP.equals(hostAuth.mProtocol)) {
-                /* Race condition: SetupData has been modified during activity launch: abandon this activity */
-                Log.w(Logging.LOG_TAG, "AccountSetupExchangeFragment loadSettings() protocol rejected: "
-                                        + hostAuth.mProtocol);
-                getActivity().onBackPressed();
-                return false;
-            } else {
-                // Account must be EAS
-                throw new Error("Unknown account type: " + hostAuth.mProtocol);
-            }
+        String protocol = hostAuth.mProtocol;
+        if (protocol == null || !protocol.startsWith("eas")) {
+            throw new Error("Unknown account type: " + protocol);
         }
 
         if (hostAuth.mAddress != null) {

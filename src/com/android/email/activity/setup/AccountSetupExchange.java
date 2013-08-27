@@ -145,17 +145,12 @@ public class AccountSetupExchange extends AccountSetupActivity
             return;
         }
 
-        try {
-            Account account = SetupData.getAccount();
-            // If we've got a username and password and we're NOT editing, try autodiscover
-            String username = account.mHostAuthRecv.mLogin;
-            String password = account.mHostAuthRecv.mPassword;
-            if (username != null && password != null) {
-                onProceedNext(SetupData.CHECK_AUTODISCOVER, mFragment);
-            }
-        } catch (NullPointerException e) {
-            finish();
-            return;
+        Account account = SetupData.getAccount();
+        // If we've got a username and password and we're NOT editing, try autodiscover
+        String username = account.mHostAuthRecv.mLogin;
+        String password = account.mHostAuthRecv.mPassword;
+        if (username != null && password != null) {
+            onProceedNext(SetupData.CHECK_AUTODISCOVER, mFragment);
         }
     }
 
