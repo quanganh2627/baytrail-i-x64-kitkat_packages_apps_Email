@@ -954,19 +954,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         }
                     }
                 });
-
-                if (mAction.equals(ACTION_EDIT_DRAFT)) {
-                    // Resuming a draft may in fact be resuming a reply/reply all/forward.
-                    // Use a best guess and infer the action here.
-                    String inferredAction = inferAction();
-                    if (inferredAction != null) {
-                        setAction(inferredAction);
-                        // No need to update the action selector as switching actions should do it.
-                        return;
-                    }
+                if (!mAction.equals(ACTION_EDIT_DRAFT)) {
+                    updateActionSelector();
                 }
-
-                updateActionSelector();
             }
 
             @Override
