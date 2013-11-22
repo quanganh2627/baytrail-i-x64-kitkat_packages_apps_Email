@@ -284,15 +284,12 @@ public class Welcome extends Activity {
         mInboxFinder = new MailboxFinder(this, mAccountId, Mailbox.TYPE_INBOX,
                 mMailboxFinderCallback);
         mInboxFinder.startLookup();
-        if(mWaitingForSyncView != null) {
-            mWaitingForSyncView.bringToFront();
-        } else {
-            // Show "your email will appear shortly" message.
-            mWaitingForSyncView = LayoutInflater.from(this).inflate(
-                    R.layout.waiting_for_sync_message, null);
-            addContentView(mWaitingForSyncView, new LayoutParams(
-                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        }
+
+        // Show "your email will appear shortly" message.
+        mWaitingForSyncView = LayoutInflater.from(this).inflate(
+                R.layout.waiting_for_sync_message, null);
+        addContentView(mWaitingForSyncView, new LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         invalidateOptionsMenu();
     }
 

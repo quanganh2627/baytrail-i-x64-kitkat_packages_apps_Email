@@ -98,16 +98,9 @@ public class FolderProperties {
      */
     private String getDisplayName(int type, long mailboxId) {
         String name = getCombinedMailboxName(mailboxId);
-        String[] specialMailbox =
-                mContext.getResources().getStringArray(R.array.mailbox_display_names);
-        for (int i = 0; i < specialMailbox.length; ++i) {
-            if ("".equals(specialMailbox[i])) {
-                // there is no localized name, so use the display name from the server
-                specialMailbox[i] = null;
-            }
-        }
-        if ((name == null) && (type < specialMailbox.length)) {
-            name = specialMailbox[type];
+
+        if ((name == null) && (type < mSpecialMailbox.length)) {
+            name = mSpecialMailbox[type];
         }
         return name;
     }

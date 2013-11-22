@@ -370,11 +370,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void setAccount(Account account) {
-        if (account == null || account.mEmailAddress == null) {
+        if (account == null) {
             Utility.showToast(this, R.string.widget_no_accounts);
             Log.d(Logging.LOG_TAG, "The account has been deleted, force finish it");
             finish();
-            return;
         }
         mAccount = account;
         mFromView.setText(account.mEmailAddress);
@@ -954,9 +953,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         }
                     }
                 });
-                if (!mAction.equals(ACTION_EDIT_DRAFT)) {
-                    updateActionSelector();
+
+                if (mAction.equals(ACTION_EDIT_DRAFT)) {
+                    // Resuming a draft may in fact be resuming a reply/reply all/forward.
+                    // Use a best guess and infer the action here.
+                    String inferredAction = inferAction();
+                    if (inferredAction != null) {
+                        setAction(inferredAction);
+                        // No need to update the action selector as switching actions should do it.
+                        return;
+                    }
                 }
+
+                updateActionSelector();
             }
 
             @Override
@@ -2018,15 +2027,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (Intent.ACTION_SEND.equals(mAction) && intent.hasExtra(Intent.EXTRA_STREAM)) {
             Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (uri != null) {
-                 try {
-                     addAttachmentFromSendIntent(uri);
-                 } catch (IllegalArgumentException e) {
-                     Utility.showToast(MessageCompose.this, R.string.protocol_is_not_supported);
-                 } catch (RuntimeException e) {
-                     Utility.showToast(MessageCompose.this, R.string.cannot_add_attachment_from_send_intent);
-                     finish();
-                     return;
-                 }
+                addAttachmentFromSendIntent(uri);
             }
         }
 
@@ -2037,13 +2038,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 for (Parcelable parcelable : list) {
                     Uri uri = (Uri) parcelable;
                     if (uri != null) {
-                        try {
-                            addAttachmentFromSendIntent(uri);
-                        } catch (RuntimeException e) {
-                            Utility.showToast(MessageCompose.this, R.string.cannot_add_attachment_from_send_intent);
-                            finish();
-                            return;
-                        }
+                        addAttachmentFromSendIntent(uri);
                     }
                 }
             }
