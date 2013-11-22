@@ -18,11 +18,9 @@ package com.android.email.mail.transport;
 
 import android.content.Context;
 import android.util.Base64;
-import android.util.Log;
 
-import com.android.email.Email;
 import com.android.email.mail.Sender;
-import com.android.email.mail.Transport;
+import com.android.email2.ui.MailActivityEmail;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.mail.Address;
@@ -32,6 +30,8 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.EOLConvertingOutputStream;
+import com.android.mail.utils.LogUtils;
 
 import java.io.IOException;
 import java.net.Inet6Address;
@@ -41,12 +41,11 @@ import javax.net.ssl.SSLException;
 
 /**
  * This class handles all of the protocol-level aspects of sending messages via SMTP.
- * TODO Remove dependence upon URI; there's no reason why we need it here
  */
 public class SmtpSender extends Sender {
 
     private final Context mContext;
-    private Transport mTransport;
+    private MailTransport mTransport;
     private String mUsername;
     private String mPassword;
 
@@ -60,33 +59,10 @@ public class SmtpSender extends Sender {
     /**
      * Creates a new sender for the given account.
      */
-    private SmtpSender(Context context, Account account) throws MessagingException {
+    public SmtpSender(Context context, Account account) {
         mContext = context;
         HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
-        if (sendAuth == null || !"smtp".equalsIgnoreCase(sendAuth.mProtocol)) {
-            throw new MessagingException("Unsupported protocol");
-        }
-        // defaults, which can be changed by security modifiers
-        int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
-        int defaultPort = 587;
-
-        // check for security flags and apply changes
-        if ((sendAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
-            defaultPort = 465;
-        } else if ((sendAuth.mFlags & HostAuth.FLAG_TLS) != 0) {
-            connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
-        }
-        boolean trustCertificates = ((sendAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
-        int port = defaultPort;
-        if (sendAuth.mPort != HostAuth.PORT_UNKNOWN) {
-            port = sendAuth.mPort;
-        }
-        mTransport = new MailTransport("IMAP");
-        mTransport.setHost(sendAuth.mAddress);
-        mTransport.setPort(port);
-        mTransport.setSecurity(connectionSecurity, trustCertificates);
-
+        mTransport = new MailTransport(context, "SMTP", sendAuth);
         String[] userInfoParts = sendAuth.getLogin();
         if (userInfoParts != null) {
             mUsername = userInfoParts[0];
@@ -99,7 +75,7 @@ public class SmtpSender extends Sender {
      * up and ready to use.  Do not use for real code.
      * @param testTransport The Transport to inject and use for all future communication.
      */
-    /* package */ void setTransport(Transport testTransport) {
+    /* package */ void setTransport(MailTransport testTransport) {
         mTransport = testTransport;
     }
 
@@ -145,8 +121,8 @@ public class SmtpSender extends Sender {
                      */
                     result = executeSimpleCommand("EHLO " + localHost);
                 } else {
-                    if (Email.DEBUG) {
-                        Log.d(Logging.LOG_TAG, "TLS not supported but required");
+                    if (MailActivityEmail.DEBUG) {
+                        LogUtils.d(Logging.LOG_TAG, "TLS not supported but required");
                     }
                     throw new MessagingException(MessagingException.TLS_REQUIRED);
                 }
@@ -167,20 +143,20 @@ public class SmtpSender extends Sender {
                     saslAuthLogin(mUsername, mPassword);
                 }
                 else {
-                    if (Email.DEBUG) {
-                        Log.d(Logging.LOG_TAG, "No valid authentication mechanism found.");
+                    if (MailActivityEmail.DEBUG) {
+                        LogUtils.d(Logging.LOG_TAG, "No valid authentication mechanism found.");
                     }
                     throw new MessagingException(MessagingException.AUTH_REQUIRED);
                 }
             }
         } catch (SSLException e) {
-            if (Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, e.toString());
+            if (MailActivityEmail.DEBUG) {
+                LogUtils.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, ioe.toString());
+            if (MailActivityEmail.DEBUG) {
+                LogUtils.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         }
@@ -202,22 +178,23 @@ public class SmtpSender extends Sender {
         Address[] bcc = Address.unpack(message.mBcc);
 
         try {
-            executeSimpleCommand("MAIL FROM: " + "<" + from.getAddress() + ">");
+            executeSimpleCommand("MAIL FROM:" + "<" + from.getAddress() + ">");
             for (Address address : to) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO:" + "<" + address.getAddress().trim() + ">");
             }
             for (Address address : cc) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO:" + "<" + address.getAddress().trim() + ">");
             }
             for (Address address : bcc) {
-                executeSimpleCommand("RCPT TO: " + "<" + address.getAddress() + ">");
+                executeSimpleCommand("RCPT TO:" + "<" + address.getAddress().trim() + ">");
             }
             executeSimpleCommand("DATA");
             // TODO byte stuffing
-            Rfc822Output.writeTo(mContext, messageId,
+            Rfc822Output.writeTo(mContext, message,
                     new EOLConvertingOutputStream(mTransport.getOutputStream()),
                     false /* do not use smart reply */,
-                    false /* do not send BCC */);
+                    false /* do not send BCC */,
+                    null  /* attachments are in the message itself */);
             executeSimpleCommand("\r\n.");
         } catch (IOException ioe) {
             throw new MessagingException("Unable to send message", ioe);
@@ -261,12 +238,12 @@ public class SmtpSender extends Sender {
             mTransport.writeLine(command, sensitiveReplacement);
         }
 
-        String line = mTransport.readLine();
+        String line = mTransport.readLine(true);
 
         String result = line;
 
         while (line.length() >= 4 && line.charAt(3) == '-') {
-            line = mTransport.readLine();
+            line = mTransport.readLine(true);
             result += line.substring(3);
         }
 
