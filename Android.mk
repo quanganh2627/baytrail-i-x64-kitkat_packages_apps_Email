@@ -25,7 +25,7 @@ unified_email_dir := ../UnifiedEmail
 photo_dir := ../../../frameworks/opt/photoviewer/res ../../../frameworks/opt/photoviewer/activity/res
 emailcommon_dir := emailcommon
 gridlayout_dir := ../../../frameworks/support/v7/gridlayout/res
-res_dir := $(chips_dir) res $(unified_email_dir)/res $(photo_dir) $(emailcommon_dir)/res $(gridlayout_dir)
+res_dir := res $(unified_email_dir)/res $(chips_dir) $(photo_dir) $(emailcommon_dir)/res $(gridlayout_dir)
 
 LOCAL_MODULE_TAGS := optional
 
@@ -51,7 +51,7 @@ LOCAL_PACKAGE_NAME := Email
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags $(unified_email_dir)/proguard.flags
 
-LOCAL_SDK_VERSION := 18
+LOCAL_SDK_VERSION := current
 
 include $(BUILD_PACKAGE)
 

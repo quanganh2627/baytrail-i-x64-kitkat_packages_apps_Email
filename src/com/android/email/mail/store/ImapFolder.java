@@ -657,10 +657,13 @@ class ImapFolder extends Folder {
             fetchFields.add(ImapConstants.FETCH_FIELD_BODY_PEEK);
         }
 
+        // TODO Why are we only fetching the first part given?
         final Part fetchPart = fp.getFirstPart();
         if (fetchPart != null) {
             final String[] partIds =
                     fetchPart.getHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA);
+            // TODO Why can a single part have more than one Id? And why should we only fetch
+            // the first id if there are more than one?
             if (partIds != null) {
                 fetchFields.add(ImapConstants.FETCH_FIELD_BODY_PEEK_BARE
                         + "[" + partIds[0] + "]");
@@ -725,7 +728,7 @@ class ImapFolder extends Folder {
                                 parseBodyStructure(bs, message, ImapConstants.TEXT);
                             } catch (MessagingException e) {
                                 if (Logging.LOGD) {
-                                    LogUtils.v(Logging.LOG_TAG, "Error handling message", e);
+                                    LogUtils.v(Logging.LOG_TAG, e, "Error handling message");
                                 }
                                 message.setBody(null);
                             }
@@ -740,7 +743,7 @@ class ImapFolder extends Folder {
                         InputStream bodyStream = body.getAsStream();
                         message.parse(bodyStream);
                     }
-                    if (fetchPart != null && fetchPart.getSize() > 0) {
+                    if (fetchPart != null) {
                         InputStream bodyStream =
                                 fetchList.getKeyedStringOrEmpty("BODY[", true).getAsStream();
                         String encodings[] = fetchPart.getHeader(
@@ -801,7 +804,12 @@ class ImapFolder extends Folder {
                 out.write(buffer, 0, n);
                 count += n;
                 if (listener != null) {
-                    listener.loadAttachmentProgress(count * 100 / size);
+                    if (size == 0) {
+                        // We don't know how big the file is, so just fake it.
+                        listener.loadAttachmentProgress((int)Math.ceil(100 * (1-1.0/count)));
+                    } else {
+                        listener.loadAttachmentProgress(count * 100 / size);
+                    }
                 }
             }
         } catch (Base64DataException bde) {
