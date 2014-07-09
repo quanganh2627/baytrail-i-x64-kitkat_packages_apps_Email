@@ -637,6 +637,7 @@
             android:authorities="com.android.email.provider;com.android.email.notifier"
             android:exported="true"
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
+            android:grantUriPermissions="true"
             android:label="@string/app_name"
             />
 
